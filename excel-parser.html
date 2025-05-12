@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excel to JS Parser</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 300px;
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Excel to JavaScript Parser</h1>
+    <p>Select your Excel file to convert it to JavaScript code for data.js</p>
+    
+    <input type="file" id="excelFile" accept=".xlsx, .xls">
+    <button id="parseButton">Parse Excel</button>
+    
+    <h3>Generated JavaScript Code:</h3>
+    <textarea id="output" readonly></textarea>
+    <button id="copyButton">Copy to Clipboard</button>
+    
+    <script>
+        document.getElementById('parseButton').addEventListener('click', function() {
+            const fileInput = document.getElementById('excelFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Please select an Excel file first.');
+                return;
+            }
+            
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                
+                // Get the first sheet
+                const sheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[sheetName];
+                
+                // Convert to JSON
+                const jsonData = XLSX.utils.sheet_to_json(worksheet);
+                
+                // Transform data to match the required format
+                const courseData = jsonData.map(row => {
+                    // Extract course code and section
+                    const courseCodeSection = row['Course Code'] || row['COURSE CODE'] || row['course_code'] || '';
+                    
+                    // Extract faculty name
+                    const facultyName = row['Faculty Name'] || row['FACULTY NAME'] || row['faculty_name'] || '';
+                    
+                    // Extract schedule (day codes and time)
+                    const schedule = row['Schedule'] || row['SCHEDULE'] || row['schedule'] || '';
+                    
+                    // Extract course title
+                    const title = row['Title'] || row['COURSE TITLE'] || row['course_title'] || '';
+                    
+                    return {
+                        course_code_section: courseCodeSection,
+                        faculty_name: facultyName,
+                        schedule: schedule,
+                        title: title
+                    };
+                });
+                
+                // Create the content for data.js
+                const content = `// This file contains the parsed course data from the Excel file
+const courseData = ${JSON.stringify(courseData, null, 2)};
+
+// Function to parse schedule string into day and time components
+function parseSchedule(scheduleStr) {
+  const parts = scheduleStr.split(' ');
+  const days = parts[0];
+  const timeRange = parts.slice(1).join(' ');
+  
+  // Map day codes to actual days
+  const dayMap = {
+    'S': 'Sunday',
+    'M': 'Monday',
+    'T': 'Tuesday',
+    'W': 'Wednesday',
+    'R': 'Thursday',
+    'A': 'Saturday'
+  };
+  
+  const daysList = [];
+  for (let i = 0; i < days.length; i++) {
+    const dayCode = days[i];
+    if (dayMap[dayCode]) {
+      daysList.push(dayMap[dayCode]);
+    }
+  }
+  
+  // Parse time range
+  const timeMatch = timeRange.match(/(\\d+:\\d+ [AP]M) - (\\d+:\\d+ [AP]M)/);
+  let startTime = '';
+  let endTime = '';
+  
+  if (timeMatch) {
+    startTime = timeMatch[1];
+    endTime = timeMatch[2];
+  }
+  
+  return {
+    days: daysList,
+    startTime: startTime,
+    endTime: endTime,
+    timeRange: timeRange
+  };
+}
+
+// Function to get all courses
+function getAllCourses() {
+  return courseData;
+}
+
+// Function to search courses
+function searchCourses(query) {
+  query = query.toLowerCase();
+  return courseData.filter(course => 
+    course.course_code_section.toLowerCase().includes(query) ||
+    course.faculty_name.toLowerCase().includes(query) ||
+    course.title.toLowerCase().includes(query)
+  );
+}
+
+// Function to get time slot index
+function getTimeSlotIndex(timeStr) {
+  const timeSlots = [
+    '08:00 AM - 09:30 AM',
+    '09:40 AM - 11:10 AM',
+    '11:20 AM - 12:50 PM',
+    '01:00 PM - 02:30 PM',
+    '02:40 PM - 04:10 PM',
+    '04:20 PM - 05:50 PM',
+    '06:00 PM - 07:30 PM'
+  ];
+  
+  return timeSlots.indexOf(timeStr);
+}`;
+                
+                document.getElementById('output').value = content;
+            };
+            
+            reader.readAsArrayBuffer(file);
+        });
+        
+        document.getElementById('copyButton').addEventListener('click', function() {
+            const output = document.getElementById('output');
+            output.select();
+            document.execCommand('copy');
+            alert('Code copied to clipboard!');
+        });
+    </script>
+</body>
+</html>

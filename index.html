@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RDS2Simulator - Course Advising Simulator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -14,13 +15,15 @@
         </header>
         
         <div class="search-section">
-            <input type="text" id="search-input" placeholder="Search for courses...">
-            <button id="search-button">Search</button>
+            <div class="search-wrapper">
+                <input type="text" id="search-input" placeholder="Search by course code, faculty, or schedule...">
+                <button id="search-button"><i class="fas fa-search"></i></button>
+            </div>
         </div>
         
         <div class="main-content">
             <div class="course-list-container">
-                <h2>Available Courses</h2>
+                <h2>Available Courses <span id="course-count"></span></h2>
                 <div id="course-list" class="course-list">
                     <!-- Course items will be added here dynamically -->
                 </div>
@@ -29,8 +32,8 @@
             <div class="routine-container">
                 <h2>Weekly Routine</h2>
                 <div class="routine-actions">
-                    <button id="save-routine">Save Routine</button>
-                    <button id="clear-routine">Clear Routine</button>
+                    <button id="save-routine"><i class="fas fa-save"></i> Save Routine</button>
+                    <button id="clear-routine"><i class="fas fa-trash"></i> Clear Routine</button>
                 </div>
                 <div class="routine-table-container">
                     <table id="routine-table" class="routine-table">
