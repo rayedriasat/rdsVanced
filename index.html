@@ -6,7 +6,168 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Routine - Course Schedule Planner</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=1.5">
+    <!-- Add html2canvas library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Add export function directly in head to ensure it's available -->
+    <script>
+        // Global export function - available immediately
+        function testSimpleExport() {
+            console.log("Export function called directly");
+            try {
+                // Get the routine table
+                const routineTable = document.getElementById('routine-table');
+                
+                if (!routineTable) {
+                    alert("Could not find the routine table.");
+                    return;
+                }
+                
+                // Hide remove buttons temporarily
+                const removeButtons = document.querySelectorAll('.remove-course');
+                removeButtons.forEach(btn => { btn.style.display = 'none'; });
+                
+                // Create a new window to show progress
+                const statusWindow = window.open('', '_blank');
+                if (!statusWindow) {
+                    alert("Pop-up blocked. Please allow pop-ups and try again.");
+                    // Restore remove buttons
+                    removeButtons.forEach(btn => { btn.style.display = 'flex'; });
+                    return;
+                }
+                
+                statusWindow.document.write(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>Creating Image...</title>
+                        <style>
+                            body {
+                                font-family: Arial, sans-serif;
+                                padding: 20px;
+                                text-align: center;
+                            }
+                            .loader {
+                                border: 5px solid #f3f3f3;
+                                border-top: 5px solid #3a0ca3;
+                                border-radius: 50%;
+                                width: 50px;
+                                height: 50px;
+                                animation: spin 2s linear infinite;
+                                margin: 20px auto;
+                            }
+                            @keyframes spin {
+                                0% { transform: rotate(0deg); }
+                                100% { transform: rotate(360deg); }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <h2>Creating JPG image...</h2>
+                        <div class="loader"></div>
+                        <p>Please wait, your class routine is being prepared as a JPG image.</p>
+                    </body>
+                    </html>
+                `);
+                
+                // Use html2canvas to convert table to image
+                html2canvas(routineTable, {
+                    backgroundColor: document.documentElement.getAttribute('data-theme') === 'dark' ? '#121212' : '#ffffff',
+                    scale: 2, // Higher quality
+                    logging: true,
+                    useCORS: true
+                }).then(function(canvas) {
+                    // Create an image from the canvas
+                    const imgData = canvas.toDataURL('image/jpeg', 0.9);
+                    
+                    // Update the window with the image and download link
+                    statusWindow.document.open();
+                    statusWindow.document.write(`
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <title>My Class Routine</title>
+                            <style>
+                                body {
+                                    font-family: Arial, sans-serif;
+                                    padding: 20px;
+                                    text-align: center;
+                                }
+                                .routine-image {
+                                    max-width: 100%;
+                                    border: 1px solid #ddd;
+                                    margin: 20px 0;
+                                }
+                                .download-btn {
+                                    display: inline-block;
+                                    padding: 10px 20px;
+                                    background-color: #3a0ca3;
+                                    color: white;
+                                    text-decoration: none;
+                                    border-radius: 5px;
+                                    margin: 10px;
+                                    font-weight: bold;
+                                }
+                                .instructions {
+                                    margin: 20px;
+                                    padding: 10px;
+                                    background-color: #f8f9fa;
+                                    border-radius: 5px;
+                                    text-align: left;
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            <h1>Your Class Routine JPG</h1>
+                            <div>
+                                <a class="download-btn" href="${imgData}" download="my-class-routine.jpg">Download JPG</a>
+                                <a class="download-btn" href="#" onclick="window.print(); return false;">Print/Save PDF</a>
+                                <a class="download-btn" href="#" onclick="window.close(); return false;">Close</a>
+                            </div>
+                            <div>
+                                <img src="${imgData}" alt="Class Routine" class="routine-image">
+                            </div>
+                            <div class="instructions">
+                                <h3>How to save:</h3>
+                                <ol>
+                                    <li>Click the "Download JPG" button to download the image.</li>
+                                    <li>If that doesn't work, right-click on the image and select "Save image as..."</li>
+                                </ol>
+                            </div>
+                        </body>
+                        </html>
+                    `);
+                    statusWindow.document.close();
+                    
+                    // Restore remove buttons
+                    removeButtons.forEach(btn => { btn.style.display = 'flex'; });
+                    
+                }).catch(function(error) {
+                    console.error("Error in html2canvas:", error);
+                    statusWindow.document.open();
+                    statusWindow.document.write(`
+                        <html><body>
+                            <h2>Error creating image</h2>
+                            <p>Could not create the JPG image. Error: ${error.message}</p>
+                            <button onclick="window.close()">Close</button>
+                        </body></html>
+                    `);
+                    statusWindow.document.close();
+                    
+                    // Restore remove buttons
+                    removeButtons.forEach(btn => { btn.style.display = 'flex'; });
+                });
+                
+            } catch (error) {
+                alert("Export failed: " + error.message);
+                console.error("Export error:", error);
+                
+                // Restore remove buttons
+                const removeButtons = document.querySelectorAll('.remove-course');
+                removeButtons.forEach(btn => { btn.style.display = 'flex'; });
+            }
+        }
+    </script>
 </head>
 
 <body>
@@ -46,7 +207,7 @@
             <div class="routine-container">
                 <h2>Weekly Routine</h2>
                 <div class="routine-actions">
-                    <button id="save-routine"><i class="fas fa-save"></i> Save Routine</button>
+                    <button id="export-routine" onclick="testSimpleExport()"><i class="fas fa-download"></i> Export as Image</button>
                     <button id="clear-routine"><i class="fas fa-trash"></i> Clear Routine</button>
                 </div>
                 <div class="routine-table-container">
