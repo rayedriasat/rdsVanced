@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RDS2Simulator - Course Advising Simulator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>RDS2Simulator</h1>
+            <p>Course Advising Simulator</p>
+        </header>
+        
+        <div class="search-section">
+            <input type="text" id="search-input" placeholder="Search for courses...">
+            <button id="search-button">Search</button>
+        </div>
+        
+        <div class="main-content">
+            <div class="course-list-container">
+                <h2>Available Courses</h2>
+                <div id="course-list" class="course-list">
+                    <!-- Course items will be added here dynamically -->
+                </div>
+            </div>
+            
+            <div class="routine-container">
+                <h2>Weekly Routine</h2>
+                <div class="routine-actions">
+                    <button id="save-routine">Save Routine</button>
+                    <button id="clear-routine">Clear Routine</button>
+                </div>
+                <div class="routine-table-container">
+                    <table id="routine-table" class="routine-table">
+                        <thead>
+                            <tr>
+                                <th>Day/Time</th>
+                                <th>08:00 AM - 09:30 AM</th>
+                                <th>09:40 AM - 11:10 AM</th>
+                                <th>11:20 AM - 12:50 PM</th>
+                                <th>01:00 PM - 02:30 PM</th>
+                                <th>02:40 PM - 04:10 PM</th>
+                                <th>04:20 PM - 05:50 PM</th>
+                                <th>06:00 PM - 07:30 PM</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Sunday</td>
+                                <td data-day="Sunday" data-time="08:00 AM - 09:30 AM"></td>
+                                <td data-day="Sunday" data-time="09:40 AM - 11:10 AM"></td>
+                                <td data-day="Sunday" data-time="11:20 AM - 12:50 PM"></td>
+                                <td data-day="Sunday" data-time="01:00 PM - 02:30 PM"></td>
+                                <td data-day="Sunday" data-time="02:40 PM - 04:10 PM"></td>
+                                <td data-day="Sunday" data-time="04:20 PM - 05:50 PM"></td>
+                                <td data-day="Sunday" data-time="06:00 PM - 07:30 PM"></td>
+                            </tr>
+                            <tr>
+                                <td>Monday</td>
+                                <td data-day="Monday" data-time="08:00 AM - 09:30 AM"></td>
+                                <td data-day="Monday" data-time="09:40 AM - 11:10 AM"></td>
+                                <td data-day="Monday" data-time="11:20 AM - 12:50 PM"></td>
+                                <td data-day="Monday" data-time="01:00 PM - 02:30 PM"></td>
+                                <td data-day="Monday" data-time="02:40 PM - 04:10 PM"></td>
+                                <td data-day="Monday" data-time="04:20 PM - 05:50 PM"></td>
+                                <td data-day="Monday" data-time="06:00 PM - 07:30 PM"></td>
+                            </tr>
+                            <tr>
+                                <td>Tuesday</td>
+                                <td data-day="Tuesday" data-time="08:00 AM - 09:30 AM"></td>
+                                <td data-day="Tuesday" data-time="09:40 AM - 11:10 AM"></td>
+                                <td data-day="Tuesday" data-time="11:20 AM - 12:50 PM"></td>
+                                <td data-day="Tuesday" data-time="01:00 PM - 02:30 PM"></td>
+                                <td data-day="Tuesday" data-time="02:40 PM - 04:10 PM"></td>
+                                <td data-day="Tuesday" data-time="04:20 PM - 05:50 PM"></td>
+                                <td data-day="Tuesday" data-time="06:00 PM - 07:30 PM"></td>
+                            </tr>
+                            <tr>
+                                <td>Wednesday</td>
+                                <td data-day="Wednesday" data-time="08:00 AM - 09:30 AM"></td>
+                                <td data-day="Wednesday" data-time="09:40 AM - 11:10 AM"></td>
+                                <td data-day="Wednesday" data-time="11:20 AM - 12:50 PM"></td>
+                                <td data-day="Wednesday" data-time="01:00 PM - 02:30 PM"></td>
+                                <td data-day="Wednesday" data-time="02:40 PM - 04:10 PM"></td>
+                                <td data-day="Wednesday" data-time="04:20 PM - 05:50 PM"></td>
+                                <td data-day="Wednesday" data-time="06:00 PM - 07:30 PM"></td>
+                            </tr>
+                            <tr>
+                                <td>Thursday</td>
+                                <td data-day="Thursday" data-time="08:00 AM - 09:30 AM"></td>
+                                <td data-day="Thursday" data-time="09:40 AM - 11:10 AM"></td>
+                                <td data-day="Thursday" data-time="11:20 AM - 12:50 PM"></td>
+                                <td data-day="Thursday" data-time="01:00 PM - 02:30 PM"></td>
+                                <td data-day="Thursday" data-time="02:40 PM - 04:10 PM"></td>
+                                <td data-day="Thursday" data-time="04:20 PM - 05:50 PM"></td>
+                                <td data-day="Thursday" data-time="06:00 PM - 07:30 PM"></td>
+                            </tr>
+                            <tr>
+                                <td>Saturday</td>
+                                <td data-day="Saturday" data-time="08:00 AM - 09:30 AM"></td>
+                                <td data-day="Saturday" data-time="09:40 AM - 11:10 AM"></td>
+                                <td data-day="Saturday" data-time="11:20 AM - 12:50 PM"></td>
+                                <td data-day="Saturday" data-time="01:00 PM - 02:30 PM"></td>
+                                <td data-day="Saturday" data-time="02:40 PM - 04:10 PM"></td>
+                                <td data-day="Saturday" data-time="04:20 PM - 05:50 PM"></td>
+                                <td data-day="Saturday" data-time="06:00 PM - 07:30 PM"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div id="notification" class="notification"></div>
+    </div>
+    
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
