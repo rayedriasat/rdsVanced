@@ -1,26 +1,38 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RDS2Simulator - Course Advising Simulator</title>
+    <title>Routine - Course Schedule Planner</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
     <div class="container">
         <header>
-            <h1>RDS2Simulator</h1>
-            <p>Course Advising Simulator</p>
+            <div class="header-content">
+                <div class="title-section">
+                    <h1>RDS2vanced</h1>
+                    <p>Schedule Planner (just select the sections)</p>
+                </div>
+                <div class="header-actions">
+                    <div class="author-credit">Made by Rayed Riasat (thercube)</div>
+                    <button id="theme-toggle" class="theme-toggle">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </div>
+            </div>
         </header>
-        
+
         <div class="search-section">
             <div class="search-wrapper">
                 <input type="text" id="search-input" placeholder="Search by course code, faculty, or schedule...">
                 <button id="search-button"><i class="fas fa-search"></i></button>
             </div>
         </div>
-        
+
         <div class="main-content">
             <div class="course-list-container">
                 <h2>Available Courses <span id="course-count"></span></h2>
@@ -28,7 +40,7 @@
                     <!-- Course items will be added here dynamically -->
                 </div>
             </div>
-            
+
             <div class="routine-container">
                 <h2>Weekly Routine</h2>
                 <div class="routine-actions">
@@ -115,11 +127,12 @@
                 </div>
             </div>
         </div>
-        
+
         <div id="notification" class="notification"></div>
     </div>
-    
+
     <script src="data.js"></script>
     <script src="script.js"></script>
 </body>
+
 </html>

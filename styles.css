@@ -1,435 +1,468 @@
-/* Reset and base styles */
+:root {
+    --primary-color: #4361ee;
+    --secondary-color: #3a0ca3;
+    --accent-color: #4cc9f0;
+    --text-color: #333;
+    --text-light: #666;
+    --bg-color: #f8f9fa;
+    --card-bg: #ffffff;
+    --border-color: #e0e0e0;
+    --header-bg: linear-gradient(135deg, #4361ee, #3a0ca3);
+    --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    --hover-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    --temporary-bg: #fff8e1;
+    --saved-bg: #e8f5e9;
+    --conflict-bg: #ffebee;
+    --notification-success: #4caf50;
+    --notification-error: #f44336;
+    --notification-info: #2196f3;
+    --button-hover: #3a0ca3;
+    --table-header-bg: #f1f3f9;
+    --table-border: #e0e0e0;
+    --transition: all 0.3s ease;
+}
+
+[data-theme="dark"] {
+    --primary-color: #4cc9f0;
+    --secondary-color: #4361ee;
+    --accent-color: #7209b7;
+    --text-color: #e0e0e0;
+    --text-light: #b0b0b0;
+    --bg-color: #121212;
+    --card-bg: #1e1e1e;
+    --border-color: #333;
+    --header-bg: linear-gradient(135deg, #3a0ca3, #7209b7);
+    --shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    --hover-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+    --temporary-bg: #332d00;
+    --saved-bg: #1b3a1e;
+    --conflict-bg: #3e1a1a;
+    --table-header-bg: #252836;
+    --table-border: #333;
+}
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-}
-
-:root {
-    --dark-bg: #121212;
-    --darker-bg: #1e1e1e;
-    --card-bg: #252525;
-    --border-color: #333;
-    --text-primary: #e0e0e0;
-    --text-secondary: #aaaaaa;
-    --accent-color: #8e44ad;
-    --accent-hover: #9b59b6;
-    --success-color: #27ae60;
-    --error-color: #e74c3c;
-    --highlight-bg: rgba(142, 68, 173, 0.2);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
-    font-family: 'Arial', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
     line-height: 1.6;
-    background-color: var(--dark-bg);
-    color: var(--text-primary);
+    transition: var(--transition);
 }
 
 .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 10px;
     display: flex;
     flex-direction: column;
-    height: 100vh;
-    overflow: hidden;
+    min-height: 100vh;
 }
 
 header {
-    background-color: var(--darker-bg);
-    color: var(--text-primary);
-    padding: 15px 20px;
-    text-align: center;
-    border-bottom: 1px solid var(--border-color);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    margin-bottom: 15px;
+    padding: 15px;
+    background: var(--header-bg);
+    color: white;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
 }
 
-header h1 {
-    margin-bottom: 5px;
-    background: linear-gradient(45deg, #8e44ad, #3498db);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    font-weight: bold;
-}
-
-/* Search section */
-.search-section {
-    padding: 15px 20px;
-    background-color: var(--darker-bg);
+.header-content {
     display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.title-section h1 {
+    font-size: 1.8rem;
+    margin-bottom: 5px;
+    font-weight: 700;
+}
+
+.title-section p {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.author-credit {
+    font-size: 0.8rem;
+    opacity: 0.9;
+    font-weight: 500;
+}
+
+.theme-toggle {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
     justify-content: center;
-    border-bottom: 1px solid var(--border-color);
+    transition: var(--transition);
+}
+
+.theme-toggle:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.search-section {
+    margin-bottom: 15px;
 }
 
 .search-wrapper {
     display: flex;
-    width: 100%;
-    max-width: 600px;
-    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
 }
 
 #search-input {
     flex: 1;
-    padding: 12px 15px;
-    border: 1px solid var(--border-color);
-    border-radius: 25px;
+    padding: 10px 15px;
+    border: none;
+    font-size: 0.9rem;
     background-color: var(--card-bg);
-    color: var(--text-primary);
-    font-size: 1rem;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s;
-}
-
-#search-input:focus {
-    outline: none;
-    border-color: var(--accent-color);
-    box-shadow: 0 0 0 2px rgba(142, 68, 173, 0.3);
+    color: var(--text-color);
 }
 
 #search-button {
-    position: absolute;
-    right: 5px;
-    top: 50%;
-    transform: translateY(-50%);
-    background-color: var(--accent-color);
+    padding: 10px 15px;
+    background-color: var(--primary-color);
     color: white;
     border: none;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s;
+    font-size: 0.9rem;
+    transition: var(--transition);
 }
 
 #search-button:hover {
-    background-color: var(--accent-hover);
-    transform: translateY(-50%) scale(1.05);
+    background-color: var(--button-hover);
 }
 
-/* Main content layout */
 .main-content {
     display: flex;
-    flex-direction: column;
-    height: calc(100vh - 130px);
-    overflow: hidden;
+    gap: 15px;
+    flex: 1;
+    height: calc(100vh - 150px);
 }
 
-/* Course list section */
 .course-list-container {
-    height: 30%;
-    min-height: 200px;
+    flex: 1;
+    background-color: var(--card-bg);
+    border-radius: 8px;
     padding: 15px;
-    background-color: var(--darker-bg);
-    border-bottom: 1px solid var(--border-color);
-    overflow: hidden;
+    box-shadow: var(--shadow);
     display: flex;
     flex-direction: column;
+    max-height: 100%;
 }
 
 .course-list-container h2 {
-    margin-bottom: 15px;
+    margin-bottom: 10px;
+    color: var(--primary-color);
     font-size: 1.2rem;
-    color: var(--text-primary);
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
 #course-count {
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-    font-weight: normal;
+    font-size: 0.8rem;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
 }
 
 .course-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
     overflow-y: auto;
+    padding-right: 5px;
     flex: 1;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    padding: 5px;
-    scrollbar-width: thin;
-    scrollbar-color: var(--accent-color) var(--darker-bg);
 }
 
-.course-list::-webkit-scrollbar {
-    width: 8px;
-}
-
-.course-list::-webkit-scrollbar-track {
-    background: var(--darker-bg);
-}
-
-.course-list::-webkit-scrollbar-thumb {
-    background-color: var(--accent-color);
-    border-radius: 10px;
-}
-
-/* Course item styling */
 .course-item {
+    padding: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: var(--transition);
     background-color: var(--card-bg);
     border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 15px;
-    width: calc(25% - 15px);
-    min-width: 220px;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: all 0.3s;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    position: relative;
-    overflow: hidden;
-}
-
-.course-item::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 4px;
-    height: 100%;
-    background: linear-gradient(to bottom, var(--accent-color), #3498db);
-}
-
-.course-item:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    background-color: #2a2a2a;
-}
-
-.course-item h3 {
-    font-size: 1.1rem;
-    margin-bottom: 8px;
-    color: var(--text-primary);
-}
-
-.course-item p {
-    margin: 5px 0;
     font-size: 0.85rem;
-    color: var(--text-secondary);
-}
-
-.course-schedule {
-    margin: 8px 0;
-    font-size: 0.85rem;
-    color: var(--text-secondary);
     display: flex;
-    align-items: center;
+    flex-direction: column;
     gap: 5px;
 }
 
-.course-schedule i {
-    color: var(--accent-color);
+.course-item h3 {
+    margin-bottom: 0;
+    color: var(--primary-color);
+    font-size: 0.95rem;
 }
 
-/* Routine section */
-.routine-container {
-    height: 70%;
-    padding: 15px;
-    background-color: var(--darker-bg);
+.course-item:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--hover-shadow);
+    border-color: var(--primary-color);
+}
+
+.course-item h3 {
+    margin-bottom: 3px;
+    color: var(--primary-color);
+    font-size: 0.95rem;
+}
+
+.course-item p {
+    color: var(--text-light);
+    font-size: 0.8rem;
+    margin-bottom: 2px;
+    white-space: nowrap;
     overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.course-schedule {
+    background-color: var(--accent-color);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-top: 3px;
+    font-size: 0.75rem;
+}
+
+.routine-container {
+    flex: 2;
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: var(--shadow);
     display: flex;
     flex-direction: column;
+    max-height: 100%;
 }
 
 .routine-container h2 {
-    margin-bottom: 15px;
+    margin-bottom: 10px;
+    color: var(--primary-color);
     font-size: 1.2rem;
-    color: var(--text-primary);
 }
 
 .routine-actions {
     display: flex;
-    gap: 15px;
-    margin-bottom: 15px;
+    gap: 10px;
+    margin-bottom: 10px;
 }
 
 .routine-actions button {
-    padding: 8px 15px;
-    background-color: var(--accent-color);
+    padding: 6px 12px;
+    background-color: var(--primary-color);
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 4px;
     cursor: pointer;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
+    transition: var(--transition);
     display: flex;
     align-items: center;
     gap: 5px;
-    transition: all 0.3s;
 }
 
 .routine-actions button:hover {
-    background-color: var(--accent-hover);
-    transform: translateY(-2px);
+    background-color: var(--button-hover);
 }
 
 #clear-routine {
-    background-color: var(--error-color);
+    background-color: var(--notification-error);
 }
 
 #clear-routine:hover {
-    background-color: #c0392b;
+    background-color: #d32f2f;
 }
 
 .routine-table-container {
+    overflow: auto;
     flex: 1;
-    overflow-y: auto;
-    overflow-x: auto;
-    scrollbar-width: thin;
-    scrollbar-color: var(--accent-color) var(--darker-bg);
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-}
-
-.routine-table-container::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-
-.routine-table-container::-webkit-scrollbar-track {
-    background: var(--darker-bg);
-}
-
-.routine-table-container::-webkit-scrollbar-thumb {
-    background-color: var(--accent-color);
-    border-radius: 10px;
 }
 
 .routine-table {
     width: 100%;
     border-collapse: collapse;
-    table-layout: fixed;
-    border-radius: 8px;
-    overflow: hidden;
+    font-size: 0.8rem;
 }
 
-.routine-table th, 
-.routine-table td {
-    border: 1px solid var(--border-color);
-    padding: 10px;
+.routine-table th, .routine-table td {
+    border: 1px solid var(--table-border);
+    padding: 6px;
     text-align: center;
-    font-size: 0.85rem;
 }
 
 .routine-table th {
-    background-color: var(--card-bg);
+    background-color: var(--table-header-bg);
+    font-weight: 600;
     position: sticky;
     top: 0;
     z-index: 10;
-    font-weight: 600;
-    color: var(--text-primary);
 }
 
-.routine-table td:first-child {
-    background-color: var(--card-bg);
+.routine-table th:first-child, .routine-table td:first-child {
+    font-weight: 600;
+    background-color: var(--table-header-bg);
     position: sticky;
     left: 0;
     z-index: 5;
-    font-weight: 600;
-    color: var(--text-primary);
 }
 
-.routine-table td[data-day] {
-    height: 70px;
-    vertical-align: top;
-    transition: background-color 0.3s;
-    background-color: rgba(37, 37, 37, 0.7);
+.routine-table th:first-child {
+    z-index: 15;
 }
 
-.routine-table td[data-day].filled {
-    background-color: var(--highlight-bg);
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-}
-
-.routine-table td[data-day].filled:hover {
-    background-color: rgba(142, 68, 173, 0.3);
-}
-
-/* Course cell in routine */
 .course-cell {
-    font-size: 0.8rem;
-    padding: 6px;
+    padding: 4px;
     border-radius: 4px;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.course-cell .course-code {
-    font-weight: bold;
-    color: var(--accent-color);
-    margin-bottom: 3px;
-}
-
-.course-cell .faculty {
-    font-style: italic;
-    color: var(--text-secondary);
     font-size: 0.75rem;
 }
 
-.course-cell .room {
-    margin-top: 3px;
-    color: var(--text-secondary);
+.course-cell.temporary {
+    background-color: var(--temporary-bg);
 }
 
-/* Notification */
+.course-cell.saved {
+    background-color: var(--saved-bg);
+}
+
+.course-cell.conflict {
+    background-color: var(--conflict-bg);
+}
+
 .notification {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    padding: 12px 20px;
-    background-color: var(--success-color);
+    padding: 10px 15px;
+    background-color: var(--notification-error);
     color: white;
-    border-radius: 8px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    transform: translateY(100px);
-    opacity: 0;
-    transition: all 0.3s;
+    border-radius: 4px;
+    box-shadow: var(--shadow);
+    display: none;
+    z-index: 1000;
+    font-size: 0.9rem;
 }
 
-.notification.show {
-    transform: translateY(0);
-    opacity: 1;
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
 }
 
-.notification.error {
-    background-color: var(--error-color);
+::-webkit-scrollbar-track {
+    background: var(--bg-color);
 }
 
-/* Responsive adjustments */
+::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary-color);
+}
+
 @media (max-width: 768px) {
-    .course-item {
-        width: calc(50% - 15px);
+    .main-content {
+        flex-direction: column;
+        height: auto;
     }
     
-    .routine-table th, 
-    .routine-table td {
-        padding: 6px;
-        font-size: 0.75rem;
+    .course-list-container, .routine-container {
+        max-height: 400px;
     }
     
-    .search-section {
-        padding: 10px;
-    }
-    
-    #search-input {
-        padding: 10px;
+    .course-list {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     }
 }
 
-/* Sparkle animation for header */
-@keyframes sparkle {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+/* Styling for multi-slot courses */
+.multi-slot {
+    position: relative;
 }
 
-header h1 {
-    background-size: 200% auto;
-    animation: sparkle 5s linear infinite;
+.multi-slot .course-cell {
+    height: 100%;
+}
+
+/* Optimize CSS variables for faster theme switching */
+:root, [data-theme="light"] {
+    --primary-color: #4361ee;
+    --secondary-color: #3a0ca3;
+    --accent-color: #4cc9f0;
+    --text-color: #333;
+    --text-light: #666;
+    --bg-color: #f8f9fa;
+    --card-bg: #ffffff;
+    --border-color: #e0e0e0;
+    --header-bg: linear-gradient(135deg, #4361ee, #3a0ca3);
+    --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    --hover-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    --temporary-bg: #fff8e1;
+    --saved-bg: #e8f5e9;
+    --conflict-bg: #ffebee;
+    --notification-success: #4caf50;
+    --notification-error: #f44336;
+    --notification-info: #2196f3;
+    --button-hover: #3a0ca3;
+    --table-header-bg: #f1f3f9;
+    --table-border: #e0e0e0;
+    --transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+[data-theme="dark"] {
+    --primary-color: #4cc9f0;
+    --secondary-color: #4361ee;
+    --accent-color: #7209b7;
+    --text-color: #e0e0e0;
+    --text-light: #b0b0b0;
+    --bg-color: #121212;
+    --card-bg: #1e1e1e;
+    --border-color: #333;
+    --header-bg: linear-gradient(135deg, #3a0ca3, #7209b7);
+    --shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    --hover-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+    --temporary-bg: #332d00;
+    --saved-bg: #1b3a1e;
+    --conflict-bg: #3e1a1a;
+    --table-header-bg: #252836;
+    --table-border: #333;
+}
+
+/* Optimize transitions for better performance */
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    transition: var(--transition);
+    will-change: background-color, color;
+}
+
+.course-item, .theme-toggle, .search-button, .routine-actions button {
+    transition: var(--transition);
+    will-change: transform, background-color;
 }

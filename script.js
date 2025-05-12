@@ -1,90 +1,87 @@
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function() {
     // DOM elements
     const searchInput = document.getElementById('search-input');
     const searchButton = document.getElementById('search-button');
     const courseList = document.getElementById('course-list');
+    const courseCount = document.getElementById('course-count');
     const routineTable = document.getElementById('routine-table');
-    const clearRoutineButton = document.getElementById('clear-routine');
     const saveRoutineButton = document.getElementById('save-routine');
+    const clearRoutineButton = document.getElementById('clear-routine');
     const notification = document.getElementById('notification');
-    const courseCountElement = document.getElementById('course-count');
-
-    // Store selected courses
-    let selectedCourses = [];
+    const themeToggle = document.getElementById('theme-toggle');
     
-    // Initialize
-    displayCourses(courseData.slice(0, 20)); // Show first 20 courses initially
-    updateCourseCount(20, courseData.length);
-
-    // Event listeners
-    searchInput.addEventListener('input', handleSearch);
-    searchButton.addEventListener('click', handleSearch);
-    clearRoutineButton.addEventListener('click', clearRoutine);
-    saveRoutineButton.addEventListener('click', saveRoutine);
+    // State variables
+    let selectedCourse = null;
+    let savedCourses = {};
     
-    // Handle search on Enter key
-    searchInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            handleSearch();
-        }
+    // Wait for course data to be loaded
+    document.addEventListener('courseDataLoaded', function() {
+        // Initialize the page once data is loaded
+        init();
     });
-
-    // Search function
-    function handleSearch() {
-        const query = searchInput.value.trim();
-        
-        if (query === '') {
-            displayCourses(courseData.slice(0, 20)); // Show first 20 courses if empty query
-            updateCourseCount(20, courseData.length);
-            return;
-        }
-        
-        const results = searchCourses(query);
-        displayCourses(results);
-        updateCourseCount(results.length, courseData.length);
-        
-        // Highlight search terms in results
-        highlightSearchTerms(query);
+    
+    // If data is already loaded (in case the event was fired before we set up the listener)
+    if (courseData && courseData.length > 0) {
+        init();
     }
     
-    // Update course count display
-    function updateCourseCount(count, total) {
-        courseCountElement.textContent = `(${count} of ${total})`;
-    }
-    
-    // Highlight search terms in the course list
-    function highlightSearchTerms(query) {
-        if (!query) return;
+    function init() {
+        // Load all courses initially
+        const courses = getAllCourses();
+        displayCourses(courses);
+        updateCourseCount(courses.length);
         
-        const terms = query.toLowerCase().split(' ').filter(term => term.length > 0);
-        if (terms.length === 0) return;
+        // Add event listeners
+        searchButton.addEventListener('click', handleSearch);
         
-        const courseItems = courseList.querySelectorAll('.course-item');
+        // Make search responsive on every keypress
+        searchInput.addEventListener('input', function() {
+            handleSearch();
+        });
         
-        courseItems.forEach(item => {
-            const text = item.textContent.toLowerCase();
-            let shouldHighlight = false;
-            
-            terms.forEach(term => {
-                if (text.includes(term)) {
-                    shouldHighlight = true;
-                }
-            });
-            
-            if (shouldHighlight) {
-                item.classList.add('highlight');
-            } else {
-                item.classList.remove('highlight');
+        // Add event listener for Enter key press
+        searchInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                handleSearch();
             }
         });
+        
+        saveRoutineButton.addEventListener('click', saveRoutine);
+        clearRoutineButton.addEventListener('click', clearRoutine);
+        
+        // Theme toggle functionality
+        themeToggle.addEventListener('click', toggleTheme);
+        
+        // Load saved theme preference
+        loadThemePreference();
+        
+        // Load saved routine data from localStorage
+        loadRoutineFromStorage();
     }
 
-    // Display courses in the list
+    function handleSearch() {
+        const query = searchInput.value.trim();
+
+        if (query === '') {
+            const courses = getAllCourses();
+            displayCourses(courses);
+            updateCourseCount(courses.length);
+        } else {
+            const courses = searchCourses(query);
+            displayCourses(courses);
+            updateCourseCount(courses.length);
+        }
+    }
+
+    function updateCourseCount(count) {
+        courseCount.textContent = `(${count})`;
+    }
+
     function displayCourses(courses) {
         courseList.innerHTML = '';
 
         if (courses.length === 0) {
-            courseList.innerHTML = '<p class="no-results">No courses found. Try different search terms.</p>';
+            courseList.innerHTML = '<p class="no-courses">No courses found.</p>';
             return;
         }
 
@@ -99,11 +96,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 <h3>${course.course_code_section}</h3>
                 <p><strong>Faculty:</strong> ${course.faculty_name}</p>
                 <div class="course-schedule">
-                    <i class="fas fa-calendar"></i> ${scheduleInfo.days.join(', ')} 
-                    <br><i class="fas fa-clock"></i> ${scheduleInfo.timeRange}
+                    <i class="fas fa-calendar-alt"></i> ${scheduleInfo.days.join(', ')} 
+                    <br>${scheduleInfo.timeRange}
                 </div>
-                <p><strong>Room:</strong> ${course.room}</p>
-                <p><strong>Seats:</strong> ${course.available_seats}</p>
             `;
 
             courseItem.addEventListener('click', function () {
@@ -114,184 +109,356 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Parse schedule string into days and time range
     function parseSchedule(scheduleStr) {
+        const parts = scheduleStr.split(' ');
+        const days = parts[0];
+        const timeRange = parts.slice(1).join(' ');
+
+        // Map day codes to actual days
         const dayMap = {
             'S': 'Sunday',
             'M': 'Monday',
             'T': 'Tuesday',
             'W': 'Wednesday',
             'R': 'Thursday',
+            'F': 'Friday',
             'A': 'Saturday'
         };
 
-        const parts = scheduleStr.split(' ');
-        const dayPart = parts[0];
-        const timePart = parts.slice(1).join(' ');
-        
-        const days = [];
-        for (let i = 0; i < dayPart.length; i++) {
-            const day = dayMap[dayPart[i]];
-            if (day) days.push(day);
+        const daysList = [];
+        for (let i = 0; i < days.length; i++) {
+            const dayCode = days[i];
+            if (dayMap[dayCode]) {
+                daysList.push(dayMap[dayCode]);
+            }
         }
 
+        // Parse time range
+        const timeMatch = timeRange.match(/(\d+:\d+ [AP]M) - (\d+:\d+ [AP]M)/);
+        let startTime = '';
+        let endTime = '';
+
+        if (timeMatch) {
+            startTime = timeMatch[1];
+            endTime = timeMatch[2];
+        }
+
+        // Calculate all time slots this course spans
+        const timeSlots = getTimeSlotsBetween(startTime, endTime);
+
         return {
-            days: days,
-            timeRange: timePart
+            days: daysList,
+            startTime: startTime,
+            endTime: endTime,
+            timeRange: timeRange,
+            timeSlots: timeSlots
         };
     }
 
-    // Get time slot index for routine table
-    function getTimeSlotIndex(timeRange) {
+    // Function to get all time slots between start and end times
+    function getTimeSlotsBetween(startTime, endTime) {
         const timeSlots = [
-            "08:00 AM - 09:30 AM",
-            "09:40 AM - 11:10 AM",
-            "11:20 AM - 12:50 PM",
-            "01:00 PM - 02:30 PM",
-            "02:40 PM - 04:10 PM",
-            "04:20 PM - 05:50 PM",
-            "06:00 PM - 07:30 PM"
+            '08:00 AM - 09:30 AM',
+            '09:40 AM - 11:10 AM',
+            '11:20 AM - 12:50 PM',
+            '01:00 PM - 02:30 PM',
+            '02:40 PM - 04:10 PM',
+            '04:20 PM - 05:50 PM',
+            '06:00 PM - 07:30 PM'
         ];
 
-        return timeSlots.indexOf(timeRange);
+        // Convert times to comparable format (minutes since midnight)
+        function timeToMinutes(timeStr) {
+            const [time, period] = timeStr.split(' ');
+            let [hours, minutes] = time.split(':').map(Number);
+
+            if (period === 'PM' && hours !== 12) {
+                hours += 12;
+            } else if (period === 'AM' && hours === 12) {
+                hours = 0;
+            }
+
+            return hours * 60 + minutes;
+        }
+
+        const startMinutes = timeToMinutes(startTime);
+        const endMinutes = timeToMinutes(endTime);
+
+        // Find all slots that overlap with the course time
+        return timeSlots.filter(slot => {
+            const [slotStart, slotEnd] = slot.split(' - ');
+            const slotStartMinutes = timeToMinutes(slotStart);
+            const slotEndMinutes = timeToMinutes(slotEnd);
+
+            // Check if there's any overlap
+            return (
+                (startMinutes <= slotStartMinutes && endMinutes > slotStartMinutes) || // Course starts before slot and ends during/after
+                (startMinutes >= slotStartMinutes && startMinutes < slotEndMinutes) // Course starts during the slot
+            );
+        });
     }
 
-    // Select a course and add to routine
     function selectCourse(course) {
+        // Clear previous temporary selections
+        clearTemporarySelections();
+
+        selectedCourse = course;
         const scheduleInfo = parseSchedule(course.schedule);
 
-        // Check for time conflicts
-        for (const day of scheduleInfo.days) {
-            const existingCourse = selectedCourses.find(c => {
-                const cSchedule = parseSchedule(c.schedule);
-                return cSchedule.days.includes(day) && cSchedule.timeRange === scheduleInfo.timeRange;
-            });
+        // Check for conflicts and display the course in the routine
+        let hasConflict = false;
 
-            if (existingCourse) {
-                showNotification(`Time conflict with ${existingCourse.course_code_section}`, true);
+        scheduleInfo.days.forEach(day => {
+            // For each time slot this course spans
+            scheduleInfo.timeSlots.forEach(timeSlot => {
+                const cell = document.querySelector(`td[data-day="${day}"][data-time="${timeSlot}"]`);
+
+                if (cell) {
+                    // Check if there's already a saved course in this slot
+                    if (cell.dataset.saved === 'true') {
+                        const existingCourse = JSON.parse(cell.dataset.course);
+                        cell.classList.add('conflict');
+                        hasConflict = true;
+
+                        showNotification(`Conflict with ${existingCourse.course_code_section} at ${day} ${timeSlot}`);
+                    } else {
+                        // Display the course as temporary
+                        cell.innerHTML = `
+                            <div class="course-cell temporary">
+                                <strong>${course.course_code_section}</strong><br>
+                                ${course.faculty_name}
+                            </div>
+                        `;
+                        cell.dataset.course = JSON.stringify(course);
+                        cell.dataset.temporary = 'true';
+
+                        // If this is a multi-slot course, add a special class
+                        if (scheduleInfo.timeSlots.length > 1) {
+                            cell.classList.add('multi-slot');
+                        }
+                    }
+                }
+            });
+        });
+
+        return !hasConflict;
+    }
+
+    function saveRoutine() {
+        if (!selectedCourse) {
+            showNotification('No course selected to save.');
+            return;
+        }
+
+        const scheduleInfo = parseSchedule(selectedCourse.schedule);
+        let hasConflict = false;
+
+        // Check for conflicts across all time slots
+        scheduleInfo.days.forEach(day => {
+            scheduleInfo.timeSlots.forEach(timeSlot => {
+                const cell = document.querySelector(`td[data-day="${day}"][data-time="${timeSlot}"]`);
+
+                if (cell && cell.dataset.saved === 'true') {
+                    hasConflict = true;
+                }
+            });
+        });
+
+        if (hasConflict) {
+            // Ask for confirmation to replace existing course
+            if (confirm('There is a conflict with an existing course. Do you want to replace it?')) {
+                // Remove the conflicting course from savedCourses
+                scheduleInfo.days.forEach(day => {
+                    scheduleInfo.timeSlots.forEach(timeSlot => {
+                        const key = `${day}-${timeSlot}`;
+                        delete savedCourses[key];
+                    });
+                });
+            } else {
+                clearTemporarySelections();
                 return;
             }
         }
 
-        // Add to selected courses
-        selectedCourses.push(course);
+        // Save the course across all time slots
+        scheduleInfo.days.forEach(day => {
+            scheduleInfo.timeSlots.forEach(timeSlot => {
+                const cell = document.querySelector(`td[data-day="${day}"][data-time="${timeSlot}"]`);
 
-        // Update routine table
-        updateRoutineTable();
-
-        showNotification(`Added ${course.course_code_section} to routine`);
-    }
-
-    // Update the routine table with selected courses
-    function updateRoutineTable() {
-        // Clear all cells first
-        const cells = routineTable.querySelectorAll('td[data-day]');
-        cells.forEach(cell => {
-            cell.innerHTML = '';
-            cell.classList.remove('filled');
-        });
-
-        // Add selected courses to table
-        selectedCourses.forEach(course => {
-            const scheduleInfo = parseSchedule(course.schedule);
-            const timeSlotIndex = getTimeSlotIndex(scheduleInfo.timeRange);
-
-            if (timeSlotIndex === -1) return;
-
-            scheduleInfo.days.forEach(day => {
-                const cell = routineTable.querySelector(`td[data-day="${day}"][data-time="${scheduleInfo.timeRange}"]`);
                 if (cell) {
+                    // Clear any existing content and classes
+                    cell.innerHTML = '';
+                    cell.className = '';
+
+                    // Add the saved course
                     cell.innerHTML = `
-                        <div class="course-cell">
-                            <div class="course-code">${course.course_code_section}</div>
-                            <div class="faculty">${course.faculty_name}</div>
-                            <div class="room">${course.room}</div>
+                        <div class="course-cell saved">
+                            <strong>${selectedCourse.course_code_section}</strong><br>
+                            ${selectedCourse.faculty_name}
                         </div>
                     `;
-                    cell.classList.add('filled');
+                    cell.dataset.course = JSON.stringify(selectedCourse);
+                    cell.dataset.saved = 'true';
+                    cell.dataset.temporary = 'false';
 
-                    // Add click event to remove course
-                    cell.addEventListener('click', function () {
-                        removeCourse(course);
-                    });
+                    // If this is a multi-slot course, add a special class
+                    if (scheduleInfo.timeSlots.length > 1) {
+                        cell.classList.add('multi-slot');
+                    }
+
+                    // Add to saved courses
+                    const key = `${day}-${timeSlot}`;
+                    savedCourses[key] = selectedCourse;
                 }
             });
         });
+
+        // Clear the selection
+        selectedCourse = null;
+
+        // Save to localStorage
+        saveRoutineToStorage();
+
+        showNotification('Course saved to routine!', 'success');
     }
 
-    // Remove a course from the routine
-    function removeCourse(course) {
-        const index = selectedCourses.findIndex(c => c.course_code_section === course.course_code_section);
-        if (index !== -1) {
-            selectedCourses.splice(index, 1);
-            updateRoutineTable();
-            showNotification(`Removed ${course.course_code_section} from routine`);
-        }
-    }
-
-    // Clear the entire routine
     function clearRoutine() {
-        if (selectedCourses.length === 0) return;
-        
-        selectedCourses = [];
-        updateRoutineTable();
-        showNotification('Routine cleared');
-    }
-
-    // Save the routine (placeholder function)
-    function saveRoutine() {
-        if (selectedCourses.length === 0) {
-            showNotification('No courses to save', true);
-            return;
+        if (confirm('Are you sure you want to clear the entire routine?')) {
+            const cells = document.querySelectorAll('td[data-day]');
+            cells.forEach(cell => {
+                cell.innerHTML = '';
+                cell.className = '';
+                delete cell.dataset.course;
+                delete cell.dataset.saved;
+                delete cell.dataset.temporary;
+            });
+            
+            savedCourses = {};
+            selectedCourse = null;
+            
+            // Clear localStorage
+            localStorage.removeItem('savedRoutine');
+            
+            showNotification('Routine cleared!', 'success');
         }
-        
-        // Create a simple text representation of the routine
-        let routineText = 'My Course Routine\n\n';
-        selectedCourses.forEach(course => {
-            routineText += `${course.course_code_section} - ${course.faculty_name}\n`;
-            routineText += `${course.schedule}, Room: ${course.room}\n\n`;
-        });
-        
-        // Create a blob and download link
-        const blob = new Blob([routineText], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'my_routine.txt';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        
-        showNotification('Routine saved');
     }
 
-    // Show notification
-    function showNotification(message, isError = false) {
+    // Function to save routine data to localStorage
+    function saveRoutineToStorage() {
+        try {
+            localStorage.setItem('savedRoutine', JSON.stringify(savedCourses));
+        } catch (error) {
+            console.error('Error saving routine to localStorage:', error);
+            showNotification('Failed to save routine data. Your browser storage might be full.', 'error');
+        }
+    }
+    
+    // Function to load routine data from localStorage
+    function loadRoutineFromStorage() {
+        try {
+            const savedRoutineData = localStorage.getItem('savedRoutine');
+            
+            if (savedRoutineData) {
+                savedCourses = JSON.parse(savedRoutineData);
+                
+                // Display saved courses in the routine table
+                Object.entries(savedCourses).forEach(([key, course]) => {
+                    const [day, timeSlot] = key.split('-');
+                    const cell = document.querySelector(`td[data-day="${day}"][data-time="${timeSlot}"]`);
+                    
+                    if (cell) {
+                        const scheduleInfo = parseSchedule(course.schedule);
+                        
+                        cell.innerHTML = `
+                            <div class="course-cell saved">
+                                <strong>${course.course_code_section}</strong><br>
+                                ${course.faculty_name}
+                            </div>
+                        `;
+                        cell.dataset.course = JSON.stringify(course);
+                        cell.dataset.saved = 'true';
+                        
+                        // If this is a multi-slot course, add a special class
+                        if (scheduleInfo.timeSlots.length > 1) {
+                            cell.classList.add('multi-slot');
+                        }
+                    }
+                });
+                
+                showNotification('Routine loaded from saved data!', 'info');
+            }
+        } catch (error) {
+            console.error('Error loading routine from localStorage:', error);
+            showNotification('Failed to load saved routine data.', 'error');
+        }
+    }
+
+    function clearTemporarySelections() {
+        const temporaryCells = document.querySelectorAll('td[data-temporary="true"]');
+        temporaryCells.forEach(cell => {
+            cell.innerHTML = '';
+            cell.className = '';
+            delete cell.dataset.course;
+            delete cell.dataset.temporary;
+        });
+
+        // Also clear any conflict highlights
+        const conflictCells = document.querySelectorAll('.conflict');
+        conflictCells.forEach(cell => {
+            cell.classList.remove('conflict');
+        });
+    }
+
+    function showNotification(message, type = 'error') {
         notification.textContent = message;
-        notification.className = 'notification' + (isError ? ' error' : '');
-        notification.classList.add('show');
+        notification.style.display = 'block';
+
+        if (type === 'success') {
+            notification.style.backgroundColor = 'var(--notification-success)';
+        } else if (type === 'info') {
+            notification.style.backgroundColor = 'var(--notification-info)';
+        } else {
+            notification.style.backgroundColor = 'var(--notification-error)';
+        }
 
         setTimeout(() => {
-            notification.classList.remove('show');
+            notification.style.display = 'none';
         }, 3000);
     }
-});
 
-// Enhanced search function in data.js
-function searchCourses(query) {
-    if (!query) return courseData.slice(0, 20);
-    
-    query = query.toLowerCase();
-    const terms = query.split(' ').filter(term => term.length > 0);
-    
-    return courseData.filter(course => {
-        // Check each search term against multiple fields
-        return terms.every(term => 
-            course.course_code_section.toLowerCase().includes(term) ||
-            course.faculty_name.toLowerCase().includes(term) ||
-            course.schedule.toLowerCase().includes(term) ||
-            course.room.toLowerCase().includes(term)
-        );
-    });
-}
+    // Theme toggle functionality
+    function toggleTheme() {
+        const html = document.documentElement;
+        const currentTheme = html.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+        // Update icon first for better perceived performance
+        const icon = themeToggle.querySelector('i');
+        if (newTheme === 'dark') {
+            icon.className = 'fas fa-sun';
+        } else {
+            icon.className = 'fas fa-moon';
+        }
+
+        // Use requestAnimationFrame to apply theme change on next frame
+        requestAnimationFrame(() => {
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+    }
+
+    function loadThemePreference() {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            document.documentElement.setAttribute('data-theme', savedTheme);
+
+            // Update icon based on current theme
+            const icon = themeToggle.querySelector('i');
+            if (savedTheme === 'dark') {
+                icon.className = 'fas fa-sun';
+            } else {
+                icon.className = 'fas fa-moon';
+            }
+        }
+    }
+});
