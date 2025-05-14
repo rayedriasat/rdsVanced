@@ -297,6 +297,14 @@ header {
     background-color: #d32f2f;
 }
 
+#export-routine {
+    background-color: var(--accent-color);
+}
+
+#export-routine:hover {
+    background-color: #3d99c2;
+}
+
 .routine-table-container {
     overflow: auto;
     flex: 1;
@@ -335,21 +343,40 @@ header {
 }
 
 .course-cell {
-    padding: 4px;
-    border-radius: 4px;
+    position: relative;
+    padding: 4px 2px;
+    border-radius: 3px;
+    background-color: #1e40af;
+    color: white;
     font-size: 0.75rem;
+    text-align: center;
+    overflow: hidden;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.course-cell.saved {
+    background-color: #1e40af;
+    color: white;
+    font-weight: 500;
+}
+
+.course-cell.saved strong {
+    font-size: 0.8rem;
+    margin-bottom: 1px;
+    display: block;
 }
 
 .course-cell.temporary {
     background-color: var(--temporary-bg);
 }
 
-.course-cell.saved {
-    background-color: var(--saved-bg);
-}
-
 .course-cell.conflict {
     background-color: var(--conflict-bg);
+    color: white;
 }
 
 .notification {
@@ -465,4 +492,34 @@ body {
 .course-item, .theme-toggle, .search-button, .routine-actions button {
     transition: var(--transition);
     will-change: transform, background-color;
+}
+
+/* Add styles for the remove course button */
+.remove-course {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 14px;
+    height: 14px;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 9px;
+    color: #f44336;
+    opacity: 0.7;
+    transition: all 0.2s ease;
+}
+
+.remove-course:hover {
+    opacity: 1;
+    transform: scale(1.1);
+    background-color: rgba(255, 255, 255, 1);
+}
+
+[data-theme="dark"] .course-cell,
+[data-theme="dark"] .course-cell.saved {
+    background-color: #4cc9f0;
 }
