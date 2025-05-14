@@ -7161,6 +7161,13 @@
         "available_seats": 40
     },
     {
+        "course_code_section": "CSE325/CSE425.3",
+        "faculty_name": "EzM",
+        "schedule": "MW 02:40 PM - 04:10 PM",
+        "room": "notsure",
+        "available_seats": 40
+    },
+    {
         "course_code_section": "CSE325/CSE425.4",
         "faculty_name": "EzM",
         "schedule": "MW 04:20 PM - 05:50 PM",
@@ -7228,6 +7235,13 @@
         "faculty_name": "MMA1",
         "schedule": "RA 11:20 AM - 12:50 PM",
         "room": "SAC308",
+        "available_seats": 40
+    },
+    {
+        "course_code_section": "CSE327.6",
+        "faculty_name": "mrh1",
+        "schedule": "MW 09:40 AM - 11:10 AM",
+        "room": "notsure",
         "available_seats": 40
     },
     {
