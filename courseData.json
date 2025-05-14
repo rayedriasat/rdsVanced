@@ -7616,6 +7616,13 @@
         "available_seats": 40
     },
     {
+        "course_code_section": "CSE373.10",
+        "faculty_name": "EKD",
+        "schedule": "ST 09:40 AM - 11:10 AM",
+        "room": "notsure",
+        "available_seats": 40
+    },
+    {
         "course_code_section": "CSE373.11",
         "faculty_name": "NdA",
         "schedule": "RA 11:20 AM - 12:50 PM",
